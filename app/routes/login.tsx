@@ -5,7 +5,7 @@ import { Form, useActionData, useNavigation, Link } from "react-router";
 import type { Route } from "./+types/login";
 import { verifyLogin } from "../auth.server";
 import { createUserSession, getAdminId, destroyUserSession } from "../session.server";
-import "../css/Login.css";
+import "../css/login.css";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
