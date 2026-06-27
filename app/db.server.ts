@@ -1,20 +1,16 @@
 // app/db.server.ts
-import "dotenv/config";
-import { createRequire } from "module";
+import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 
-const require = createRequire(import.meta.url);
-const { PrismaClient } = require("../generated/prisma/client/index.js");
+const url       = process.env.DATABASE_URL!;
+const authToken = process.env.TURSO_AUTH_TOKEN;
 
-const adapter = new PrismaLibSql({
-  url: process.env.DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
+const adapter = new PrismaLibSql({ url, authToken });
 
-let prisma: any;
+let prisma: PrismaClient;
 
 declare global {
-  var __db__: any;
+  var __db__: PrismaClient | undefined;
 }
 
 if (process.env.NODE_ENV === "production") {
