@@ -12,6 +12,7 @@
     "@libsql/client": "^0.8.1",
     "@prisma/adapter-libsql": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@react-router/dev": "8.0.0",
     "@react-router/node": "8.0.0",
     "@react-router/serve": "8.0.0",
     "bcryptjs": "^3.0.3",
@@ -23,7 +24,6 @@
     "react-router": "8.0.0"
   },
   "devDependencies": {
-    "@react-router/dev": "8.0.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22",
