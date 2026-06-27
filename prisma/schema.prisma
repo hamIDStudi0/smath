@@ -1,0 +1,54 @@
+// prisma/schema.prisma
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma/client"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model AdminUser {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+}
+
+model Article {
+  id          Int      @id @default(autoincrement())
+  title       String
+  body        String
+  author      String
+  htmlContent String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Generation {
+  id      Int      @id @default(autoincrement())
+  name    String
+  members Member[]
+}
+
+model Member {
+  id           Int        @id @default(autoincrement())
+  name         String
+  bio          String?
+  imageUrl     String?
+  generationId Int
+  generation   Generation @relation(fields: [generationId], references: [id], onDelete: Cascade)
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  name      String
+  message   String
+  ipAddress String   @default("")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

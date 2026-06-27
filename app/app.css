@@ -1,0 +1,349 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* =========================================
+   DESIGN SYSTEM TOKENS
+   ========================================= */
+:root {
+  /* Core palette — dark navy (home feel) */
+  --bg-base:        #0f172a;
+  --bg-surface:     #0f172a;
+  --bg-card:        rgba(30, 41, 59, 0.6);
+  --bg-card-hover:  rgba(30, 41, 59, 0.85);
+
+  /* Text */
+  --ink:            #f1f5f9;
+  --ink-muted:      #cbd5e1;
+  --ink-faint:      #64748b;
+
+  /* Brand accents — BLUE (matches home) */
+  --blue-primary:   #60a5fa;
+  --blue-deep:      #3b82f6;
+  --blue-muted:     rgba(96, 165, 250, 0.25);
+  --blue-light:     rgba(96, 165, 250, 0.08);
+  --blue-glow:      rgba(96, 165, 250, 0.15);
+
+  /* Aliases for pages that used orange vars */
+  --orange-primary: #ffd249;
+  --orange-deep:    #f6c13b;
+  --orange-muted:   rgba(96, 165, 250, 0.25);
+  --orange-light:   rgba(96, 165, 250, 0.08);
+  --orange-glow:    rgba(96, 165, 250, 0.15);
+
+  /* Borders */
+  --border:         rgba(255,255,255,0.08);
+  --border-hover:   rgba(96, 165, 250, 0.45);
+
+  /* Typography */
+  --font-display:   "Space Grotesk", system-ui, sans-serif;
+  --font-body:      "Inter", system-ui, sans-serif;
+
+  /* Radius */
+  --radius-sm:      6px;
+  --radius-md:      12px;
+  --radius-lg:      20px;
+
+  /* Shadows */
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-hover:   0 10px 30px rgba(0,0,0,0.6), 0 0 0 1px var(--border-hover);
+
+  /* Nav height */
+  --nav-h: 64px;
+}
+
+/* =========================================
+   RESET & BASE
+   ========================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background-color: var(--bg-base);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button { cursor: pointer; font-family: inherit; }
+a { text-decoration: none; }
+
+.fixed-background-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0; 
+  pointer-events: none; 
+}
+
+/* =========================================
+   NAVBAR
+   ========================================= */
+.navroot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--nav-h);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 clamp(1.25rem, 4vw, 3rem);
+  background: rgba(28, 21, 14, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  z-index: 1000;
+  transition: background 0.3s ease;
+}
+
+/* Logo */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  transform: skewX(-8deg);
+  user-select: none;
+  text-decoration: none;
+}
+
+.nav-logo-dot  { color: var(--blue-primary); font-size: 1.4rem; line-height: 1; text-shadow: var(--blue-primary) 1px 1px 5px;}
+.nav-logo-main { color: var(--blue-primary); text-shadow: var(--blue-primary) 1px 1px 5px;}
+.nav-logo-math {
+  font-family: "Cambria Math", "Times New Roman", Georgia, serif;
+  font-style: italic;
+  color: var(--orange-primary);
+  translate: 0px 2px;
+  text-shadow: var(--orange-primary) 1px 1px 5px;
+}
+
+/* Nav links */
+.navbar {
+  display: flex;
+  gap: 1px;
+  align-items: center;
+}
+
+.nav-item {
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-sm);
+  position: relative;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.nav-item:hover {
+  color: var(--ink);
+  background: rgba(255,255,255,0.06);
+}
+
+.nav-item.active {
+  color: var(--orange-primary);
+  font-weight: 600;
+  text-shadow: #f6c13b 0px 0px 30px;
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 60%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--orange-primary);
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+.nav-item.active::after { transform: translateX(-50%) scaleX(1); }
+
+/* =========================================
+   PAGE TRANSITION SYSTEM — dual-layer overlay
+   Halaman lama & baru dirender bersamaan selama transisi
+   sehingga tidak ada frame kosong / kedip.
+   ========================================= */
+
+/* Kontainer: posisi relative + clip overflow horizontal */
+/* Container pembungkus harus relative dan menyembunyikan overflow */
+.pt-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: 100vh; /* Sesuaikan dengan kebutuhan layoutmu */
+}
+
+/* Halaman yang sedang aktif */
+.pt-page {
+  width: 100%;
+  /* Optional: position absolute jika kamu ingin mereka tumpang tindih secara absolut, 
+     tapi karena kita hapus outgoing, relative/block biasa sudah cukup */
+}
+
+/* ── Animasi Maju (Geser ke Kiri, Masuk dari Kanan) ── */
+.pt-in-left {
+  animation: slideInFromRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px); /* Bisa diganti 100% jika ingin dari ujung layar */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ── Animasi Mundur (Geser ke Kanan, Masuk dari Kiri) ── */
+.pt-in-right {
+  animation: slideInFromLeft 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px); /* Bisa diganti -100% jika ingin dari ujung layar */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+/* =========================================
+   PAGE WRAPPER (padding for fixed nav)
+   ========================================= */
+.page-wrapper {
+  padding-top: var(--nav-h);
+  min-height: 100vh;
+}
+
+/* =========================================
+   SHARED SECTION PRIMITIVES
+   ========================================= */
+.section-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange-primary);
+  margin-bottom: 0.6rem;
+}
+
+.section-heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.section-subheading {
+  font-size: 0.95rem;
+  color: var(--ink-muted);
+  line-height: 1.7;
+  margin-top: 0.5rem;
+}
+
+/* Glass card base */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.glass-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+
+/* Blue button (replaces orange) */
+.btn-orange,
+.btn-blue {
+  background: var(--orange-deep);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  transition: background 0.18s ease, transform 0.1s ease;
+}
+.btn-orange:hover, .btn-blue:hover  { background: #2563eb; }
+.btn-orange:active, .btn-blue:active { transform: scale(0.97); }
+
+/* Input base */
+.input-base {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.9rem;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: rgba(15,23,42,0.7);
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  width: 100%;
+}
+.input-base::placeholder { color: var(--ink-faint); }
+.input-base:focus {
+  border-color: var(--orange-primary);
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+}
+
+.app-footer {
+  width: 100%;
+  padding: 3rem 1.5rem;
+  background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.95)); /* Gradasi mulus ke gelap */
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-top: 4rem; /* Jarak dari diagram terakhir */
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.footer-logo {
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #3b82f6; /* Warna biru aksen */
+  margin-bottom: 0.5rem;
+}
+
+.footer-copyright {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
