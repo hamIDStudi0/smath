@@ -1,6 +1,6 @@
 // app/routes/dashboard.tsx
 import { useState } from 'react';
-import { Form, redirect, useLoaderData, useActionData } from 'react-router';
+import { Form, redirect, useLoaderData, useActionData, Link } from 'react-router';
 import { prisma } from '../db.server';
 import { requireAdminId } from '../session.server';
 import { destroyUserSession } from '../session.server';
@@ -80,6 +80,16 @@ const LogOutIcon = () => (
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
     <polyline points="16 17 21 12 16 7"/>
     <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+);
+
+const UserPlusIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="8.5" cy="7" r="4" />
+    <line x1="20" y1="8" x2="20" y2="14" />
+    <line x1="23" y1="11" x2="17" y2="11" />
   </svg>
 );
 
@@ -331,6 +341,7 @@ function EditArticleModal({ article, onClose }: { article: ArticleItem; onClose:
   const [desc, setDesc]     = useState(article.description);
   const [html, setHtml]     = useState(article.htmlContent ?? '');
   const [activeTab, setTab] = useState<'visual' | 'html'>('visual');
+  const [wrapEnabled, setWrapEnabled] = useState(true);
 
   return (
     <div className="edit-modal-overlay" onClick={onClose}>
@@ -366,8 +377,8 @@ function EditArticleModal({ article, onClose }: { article: ArticleItem; onClose:
             </div>
             {activeTab === 'html' ? (
               <>
-                <HtmlEditorToolbar targetId="edit-html-editor" />
-                <textarea id="edit-html-editor" name="htmlContent" rows={14} value={html} onChange={(e) => setHtml(e.target.value)} className="dash-input dash-input--code" placeholder="<p>Tulis konten artikel di sini...</p>" spellCheck={false} />
+                <div className="html-toolbar-wrap"><HtmlEditorToolbar targetId="edit-html-editor" /><button type="button" className={`html-toolbar__btn html-toolbar__btn--wrap ${wrapEnabled ? "html-toolbar__btn--wrap-active" : ""}`} title="Toggle Word Wrap" onClick={() => setWrapEnabled(v => !v)}>Wrap</button></div>
+                <textarea id="edit-html-editor" name="htmlContent" rows={14} value={html} onChange={(e) => setHtml(e.target.value)} className="dash-input dash-input--code" placeholder="<p>Tulis konten artikel di sini...</p>" spellCheck={false} style={{ whiteSpace: wrapEnabled ? "pre-wrap" : "pre", overflowWrap: wrapEnabled ? "break-word" : "normal" }} />
               </>
             ) : (
               <>
@@ -396,6 +407,7 @@ export default function Dashboard() {
   const [editArticle, setEditArticle] = useState<ArticleItem | null>(null);
   const [htmlContent, setHtmlContent] = useState('');
   const [editorTab, setEditorTab]     = useState<'html' | 'preview'>('html');
+  const [wrapEnabled, setWrapEnabled]   = useState(true);
 
   const unreadCount = feedbacks.filter((f: any) => !f.isRead).length;
 
@@ -442,6 +454,9 @@ export default function Dashboard() {
           <div className="dash-sidebar__spacer" />
 
           <div className="dash-sidebar__footer">
+            <Link to="/register" className="dash-back-btn dash-back-btn--register">
+              <UserPlusIcon /> Kelola Admin
+            </Link>
             <Form method="post">
               <button type="submit" name="_action" value="logout" className="dash-back-btn">
                 <LogOutIcon /> Logout
@@ -493,8 +508,8 @@ export default function Dashboard() {
                   </div>
                   {editorTab === 'html' ? (
                     <>
-                      <HtmlEditorToolbar targetId="new-html-editor" />
-                      <textarea id="new-html-editor" name="htmlContent" rows={16} value={htmlContent} onChange={(e) => setHtmlContent(e.target.value)} className="dash-input dash-input--code" placeholder="<p>Tulis konten artikel di sini menggunakan HTML...</p>" spellCheck={false} />
+                      <div className="html-toolbar-wrap"><HtmlEditorToolbar targetId="new-html-editor" /><button type="button" className={`html-toolbar__btn html-toolbar__btn--wrap ${wrapEnabled ? "html-toolbar__btn--wrap-active" : ""}`} title="Toggle Word Wrap" onClick={() => setWrapEnabled(v => !v)}>Wrap</button></div>
+                      <textarea id="new-html-editor" name="htmlContent" rows={16} value={htmlContent} onChange={(e) => setHtmlContent(e.target.value)} className="dash-input dash-input--code" placeholder="<p>Tulis konten artikel di sini menggunakan HTML...</p>" spellCheck={false} style={{ whiteSpace: wrapEnabled ? "pre-wrap" : "pre", overflowWrap: wrapEnabled ? "break-word" : "normal" }} />
                     </>
                   ) : (
                     <>

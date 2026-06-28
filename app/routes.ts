@@ -8,6 +8,7 @@ export default [
     route("feedback", "routes/feedback.tsx"),
     route("login", "routes/login.tsx"),
     route("dashboard", "routes/dashboard.tsx"),
+    route("register", "routes/register.tsx"),
     route("article/:id", "routes/article.$id.tsx"),
     route("key", "routes/key.tsx"),
 ] satisfies RouteConfig;
