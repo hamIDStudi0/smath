@@ -728,10 +728,7 @@ export default function Dashboard() {
                         </Form>
                       </div>
                     </div>
-                    <div 
-                    className="dash-feedback-item__message"
-                    dangerouslySetInnerHTML={{ __html: fb.message }} 
-                    />
+                    <p className="dash-feedback-item__message">{fb.message}</p>
                   </div>
                 ))}
               </div>
