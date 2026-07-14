@@ -96,7 +96,7 @@ export default function About() {
       </div>
 
       <div className="about__section">
-        <h2><SeedlingIcon /> Asal</h2>
+        <h2><SeedlingIcon /> Origin</h2>
         <p>
           Platform yang muncul dari keinginan untuk berkembang, dibantu oleh semangat dan dukungan memberikan kekuatan dalam membangun sebuah tempat yang akan memberikan timbal balik positif dan dikenang selamanya.
         </p>
