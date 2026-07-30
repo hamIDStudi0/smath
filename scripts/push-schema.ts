@@ -64,6 +64,6 @@ async function main() {
 }
 
 main().catch((e) => {
-  console.error("❌ Error:", e);
+  console.error("❌ Detail Error:", e.message || e);
   process.exit(1);
 });
