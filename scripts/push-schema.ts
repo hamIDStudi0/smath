@@ -19,13 +19,16 @@ const statements = [
   )`,
   `CREATE TABLE IF NOT EXISTS "Article" (
     "id"          INTEGER PRIMARY KEY AUTOINCREMENT,
-    "title"       TEXT     NOT NULL,
-    "body"        TEXT     NOT NULL,
-    "author"      TEXT     NOT NULL,
+    "title"       TEXT    NOT NULL,
+    "body"        TEXT    NOT NULL,
+    "author"      TEXT    NOT NULL,
     "htmlContent" TEXT,
     "imageUrl"    TEXT,
     "createdAt"   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt"   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "updatedAt"   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isPinned"    INTEGER NOT NULL DEFAULT 0,
+    "pinnedAt"    DATETIME,
+    "hasHtml"     INTEGER NOT NULL DEFAULT 0
   )`,
   `CREATE TABLE IF NOT EXISTS "Generation" (
     "id"   INTEGER PRIMARY KEY AUTOINCREMENT,
