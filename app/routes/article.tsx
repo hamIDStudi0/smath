@@ -1,5 +1,6 @@
-import {Link, useLoaderData, useSearchParams, useNavigate, type LoaderFunctionArgs} from 'react-router';
+import {Link, useLoaderData, useSearchParams, useFetcher, type LoaderFunctionArgs, type ActionFunctionArgs} from 'react-router';
 import { prisma } from '../db.server';
+import { getAdminId } from '../session.server';
 import '../css/Articles.css';
 const PAGE_SIZE = 6;
 
@@ -18,12 +19,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     : {};
 
-  // Jalankan count + findMany secara paralel — hemat 1 round-trip DB
-  const [total, dbArticles] = await Promise.all([
+  // adminId dicek paralel juga — request session ringan, tidak menunggu DB artikel
+  const [total, dbArticles, adminId] = await Promise.all([
     prisma.article.count({ where }),
-    prisma.article.findMany({
+    (prisma.article as any).findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      // Pengumuman (pinned) selalu tampil di atas, baru urutan terbaru
+      orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
       skip:  (page - 1) * PAGE_SIZE,
       take:  PAGE_SIZE,
       select: {
@@ -32,18 +34,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
         body:        true,
         author:      true,
         createdAt:   true,
-        // Hanya ambil boolean-nya, bukan seluruh htmlContent (hemat bandwidth)
-        htmlContent: true,
+        isPinned:    true,
+        // Kolom boolean ringan — bukan seluruh htmlContent (hemat bandwidth & waktu query DB beneran)
+        hasHtml:     true,
       },
     }),
+    getAdminId(request),
   ]);
 
   return {
-    articles: dbArticles.map((art) => ({
+    articles: dbArticles.map((art: any) => ({
       id:      art.id,
       title:   art.title,
       description: art.body,
-      hasHtml: !!art.htmlContent,
+      hasHtml: !!art.hasHtml,
+      isPinned: !!art.isPinned,
       author:  art.author,
       date:    art.createdAt.toLocaleDateString('id-ID', {
         day: 'numeric', month: 'short', year: 'numeric',
@@ -56,7 +61,27 @@ export async function loader({ request }: LoaderFunctionArgs) {
       pageSize:   PAGE_SIZE,
     },
     search,
+    isAdmin: !!adminId,
   };
+}
+
+// Toggle pin/"pengumuman" langsung dari halaman artikel — hanya admin yang login
+export async function action({ request }: ActionFunctionArgs) {
+  const adminId = await getAdminId(request);
+  if (!adminId) {
+    return { error: 'Kamu harus login sebagai admin untuk melakukan ini.' };
+  }
+  const formData  = await request.formData();
+  const articleId = Number(formData.get('articleId'));
+  const pin       = formData.get('pin') === '1';
+  if (!articleId) return { error: 'ID Artikel tidak valid.' };
+
+  await (prisma.article as any).update({
+    where: { id: articleId },
+    data:  { isPinned: pin, pinnedAt: pin ? new Date() : null },
+  });
+
+  return { ok: true, id: articleId, isPinned: pin };
 }
 
 function initials(name:string){
@@ -64,10 +89,61 @@ function initials(name:string){
     return name.split(' ').filter(Boolean).map((n)=>n[0]).join('').slice(0, 2).toUpperCase();
 }
 
+interface ArticleListItem {
+  id: number;
+  title: string;
+  description: string;
+  hasHtml: boolean;
+  isPinned: boolean;
+  author: string;
+  date: string;
+}
+
+function ArticleCard({ article, isAdmin }: { article: ArticleListItem; isAdmin: boolean }) {
+  const fetcher = useFetcher<typeof action>();
+  // Optimistic UI: begitu tombol ditekan, tampilan langsung berubah tanpa menunggu server
+  const optimisticPinned = fetcher.formData
+    ? fetcher.formData.get('pin') === '1'
+    : article.isPinned;
+
+  return (
+    <div className={`article-card ${optimisticPinned ? 'article-card--pinned' : ''}`}>
+      {isAdmin && (
+        <fetcher.Form method="post" className="article-card__pin-form">
+          <input type="hidden" name="articleId" value={article.id} />
+          <input type="hidden" name="pin" value={optimisticPinned ? '0' : '1'} />
+          <button
+            type="submit"
+            className={`article-card__pin-btn ${optimisticPinned ? 'article-card__pin-btn--active' : ''}`}
+            title={optimisticPinned ? 'Batalkan status pengumuman' : 'Jadikan pengumuman (pin di atas)'}
+            disabled={fetcher.state !== 'idle'}
+          >
+            📌 {optimisticPinned ? 'Batal Pengumuman' : 'Jadikan Pengumuman'}
+          </button>
+        </fetcher.Form>
+      )}
+
+      {optimisticPinned && <span className="article-card__pin-flag">📌 Pengumuman</span>}
+
+      <Link to={`/article/${article.id}`} className="article-card__link">
+        <div className="article-card__meta">
+          <div className="article-card__avatar">{initials(article.author)}</div>
+          <span className="article-card__author">{article.author}</span>
+          <span className="article-card__date">{article.date}</span>
+          {article.hasHtml && (
+            <span className="article-card__badge">Baca →</span>
+          )}
+        </div>
+        <h2 className="article-card__title">{article.title}</h2>
+        <p className="article-card__body">{article.description}</p>
+      </Link>
+    </div>
+  );
+}
+
 export default function Articles() {
-    const {articles,pagination, search} = useLoaderData<typeof loader>();
+    const {articles,pagination, search, isAdmin} = useLoaderData<typeof loader>();
     const [, setSearchParams] = useSearchParams();
-    const navigate = useNavigate;
     function handleSearch(e: React.ChangeEvent<HTMLInputElement>){
         const q = e.target.value;
         setSearchParams((prev)=>{
@@ -129,22 +205,7 @@ export default function Articles() {
           </div>
         ) : (
           articles.map((article) => (
-            <Link
-              key={article.id}
-              to={`/article/${article.id}`}
-              className="article-card"
-            >
-              <div className="article-card__meta">
-                <div className="article-card__avatar">{initials(article.author)}</div>
-                <span className="article-card__author">{article.author}</span>
-                <span className="article-card__date">{article.date}</span>
-                {article.hasHtml && (
-                  <span className="article-card__badge">Baca →</span>
-                )}
-              </div>
-              <h2 className="article-card__title">{article.title}</h2>
-              <p className="article-card__body">{article.description}</p>
-            </Link>
+            <ArticleCard key={article.id} article={article} isAdmin={isAdmin} />
           ))
         )}
       </div>

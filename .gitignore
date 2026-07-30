@@ -1,5 +1,6 @@
 .DS_Store
 .env
+.gitignore
 /node_modules/
 /prisma/seed.mjs
 
@@ -9,3 +10,5 @@
 
 /generated/prisma
 /generated/
+
+app.zip

@@ -78,15 +78,15 @@ export default function FeedbackPage() {
           <ul className="fb-info__list">
             <li className="fb-info__item">
               <span className="fb-info__dot" />
-              Feedback dikirim secara anonim
+              Saran didasarkan kritik
             </li>
             <li className="fb-info__item">
               <span className="fb-info__dot" />
-              Dibaca langsung oleh tim admin
+              Insyaallah dibaca oleh Admin
             </li>
             <li className="fb-info__item">
               <span className="fb-info__dot" />
-              Dibatasi 3 kiriman per 10 menit
+              No Spamming
             </li>
           </ul>
         </aside>
@@ -156,7 +156,7 @@ function FeedbackForm({ error }: { error?: string | null }) {
             id="fb-message"
             name="message"
             rows={5}
-            placeholder="Ceritakan pengalamanmu, laporkan masalah, atau berikan saran untuk kami..."
+            placeholder="Ceritakan pengalamanmu, laporkan masalah, atau berikan saran untuk kami :)"
             minLength={10}
             maxLength={1000}
             required
@@ -182,7 +182,7 @@ function SuccessState() {
       </div>
       <h2 className="fb-success__title">Terima kasih!</h2>
       <p className="fb-success__desc">
-        Feedback kamu sudah kami terima. Tim kami akan segera meninjaunya.
+        Feedback kamu sudah kami terima. Kami akan segera meninjaunya.
       </p>
       <div className="fb-success__actions">
         <Link to="/feedback" className="fb-btn fb-btn--primary">

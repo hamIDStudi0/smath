@@ -97,6 +97,7 @@
 
 /* Article card */
 .article-card {
+  position: relative;
   width: 100%;
   text-align: left;
   background: rgba(30, 41, 59, 0.55);
@@ -104,11 +105,8 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 1.5rem 1.75rem;
-  cursor: pointer;
   transition: background 0.22s, border-color 0.22s, transform 0.22s, box-shadow 0.22s;
   font-family: inherit;
-  text-decoration: none;
-  display: block;
 }
 
 .article-card:hover {
@@ -116,6 +114,76 @@
   border-color: rgba(96, 165, 250, 0.45);
   transform: translateY(-3px);
   box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.45);
+}
+
+/* Artikel yang dijadikan pengumuman — beda warna aksen (kuning/oranye) supaya menonjol */
+.article-card--pinned {
+  border-color: rgba(255, 210, 73, 0.45);
+  background: rgba(120, 90, 20, 0.12);
+}
+
+.article-card--pinned:hover {
+  border-color: rgba(255, 210, 73, 0.7);
+  background: rgba(120, 90, 20, 0.18);
+}
+
+.article-card__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.article-card__pin-flag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.03em;
+  color: var(--orange-primary);
+  background: rgba(255, 210, 73, 0.12);
+  border: 1px solid rgba(255, 210, 73, 0.35);
+  border-radius: 20px;
+  padding: 0.2rem 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.article-card__pin-form {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.6rem;
+}
+
+.article-card__pin-btn {
+  font-family: monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, opacity 0.18s;
+}
+
+.article-card__pin-btn:hover {
+  background: rgba(255, 210, 73, 0.12);
+  border-color: rgba(255, 210, 73, 0.4);
+  color: var(--orange-primary);
+}
+
+.article-card__pin-btn--active {
+  background: rgba(255, 210, 73, 0.15);
+  border-color: rgba(255, 210, 73, 0.5);
+  color: var(--orange-primary);
+}
+
+.article-card__pin-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
 }
 
 .article-card__meta {
@@ -495,6 +563,57 @@
   margin-bottom: 0.85rem;
 }
 
+.article-page__pin-flag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.03em;
+  color: var(--orange-primary);
+  background: rgba(255, 210, 73, 0.12);
+  border: 1px solid rgba(255, 210, 73, 0.35);
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.article-page__pin-form {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.article-page__pin-btn {
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, color 0.18s, opacity 0.18s;
+}
+
+.article-page__pin-btn:hover {
+  background: rgba(255, 210, 73, 0.12);
+  border-color: rgba(255, 210, 73, 0.4);
+  color: var(--orange-primary);
+}
+
+.article-page__pin-btn--active {
+  background: rgba(255, 210, 73, 0.15);
+  border-color: rgba(255, 210, 73, 0.5);
+  color: var(--orange-primary);
+}
+
+.article-page__pin-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
 .article-page__footer {
   display: block;
   margin-top: 4rem;
@@ -503,3 +622,88 @@
 }
 
 .article-page__back--footer { font-size: 0.85rem; }
+
+/* =========================================
+   RESPONSIVE — TABLET & HP
+   ========================================= */
+@media (max-width: 768px) {
+  .articles {
+    padding: calc(var(--nav-h) + 2rem) 1.25rem 4rem;
+  }
+
+  .articles__header { margin-bottom: 1.5rem; }
+
+  .article-card {
+    padding: 1.15rem 1.25rem;
+  }
+
+  .article-card__date {
+    font-size: 0.7rem;
+  }
+
+  .article-page__topbar {
+    padding: 0.75rem 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .article-page__body {
+    padding: 3rem 1.25rem 4rem;
+  }
+
+  .article-page__title {
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+  }
+
+  .article-page__content {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .articles {
+    padding: calc(var(--nav-h) + 1.5rem) 0.9rem 3rem;
+  }
+
+  .articles__search {
+    padding: 0.65rem 2.5rem 0.65rem 2.5rem;
+    font-size: 0.85rem;
+  }
+
+  .articles__search-count {
+    display: none; /* muat di 1 baris tanpa dempet di layar sempit */
+  }
+
+  .article-card {
+    padding: 1rem;
+  }
+
+  .article-card__meta {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
+  .article-card__date {
+    margin-left: 0;
+  }
+
+  .article-card__title {
+    font-size: 1rem;
+  }
+
+  .pagination__info {
+    width: 100%;
+    text-align: center;
+    margin-left: 0;
+    margin-top: 0.4rem;
+  }
+
+  .article-page__topbar {
+    top: 0;
+    position: static;
+  }
+
+  .article-page__meta {
+    flex-wrap: wrap;
+  }
+}

@@ -168,6 +168,29 @@ a { text-decoration: none; }
 
 .nav-item.active::after { transform: translateX(-50%) scaleX(1); }
 
+/* ── Navbar: responsive (tablet & hp) ── */
+@media (max-width: 768px) {
+  .navroot {
+    padding: 0 1rem;
+  }
+  .nav-logo { font-size: 1rem; }
+  .navbar { gap: 0; }
+  .nav-item {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.55rem;
+  }
+}
+
+@media (max-width: 420px) {
+  :root { --nav-h: 56px; }
+  .navroot { padding: 0 0.7rem; }
+  .nav-logo { font-size: 0.9rem; }
+  .nav-item {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.4rem;
+  }
+}
+
 /* =========================================
    PAGE TRANSITION SYSTEM — dual-layer overlay
    Halaman lama & baru dirender bersamaan selama transisi
@@ -346,4 +369,14 @@ a { text-decoration: none; }
   font-size: 0.8rem;
   color: #64748b;
   margin-top: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .app-footer {
+    padding: 2rem 1.25rem;
+    margin-top: 2.5rem;
+  }
+  .footer-content { font-size: 0.8rem; }
+  .footer-logo { font-size: 1.25rem; }
+  .footer-copyright { font-size: 0.72rem; }
 }

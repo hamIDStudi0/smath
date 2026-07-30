@@ -1,6 +1,10 @@
 // app/routes/dashboard.tsx
 import { useState } from 'react';
 import { Form, redirect, useLoaderData, useActionData, Link } from 'react-router';
+// Catatan: navigasi antar-tab sekarang lewat <Link to="?tab=..." prefetch="intent">
+// bukan React state lokal — supaya data berat per-tab (artikel+HTML, angkatan+anggota,
+// feedback) hanya di-query oleh server saat tab itu benar-benar dibuka, tapi tetap
+// terasa instan karena React Router sudah prefetch loader-nya saat tombol di-hover/fokus.
 import { prisma } from '../db.server';
 import { requireAdminId } from '../session.server';
 import { destroyUserSession } from '../session.server';
@@ -108,47 +112,76 @@ const TrashIcon = () => (
 export async function loader({ request }: Route.LoaderArgs) {
   const adminId = await requireAdminId(request);
 
-  const admin = await prisma.adminUser.findUnique({
-    where: { id: adminId },
-    select: { name: true, email: true },
-  });
+  const url = new URL(request.url);
+  const tabParam = url.searchParams.get('tab');
+  const tab: 'articles' | 'generations' | 'feedback' =
+    tabParam === 'generations' || tabParam === 'feedback' ? tabParam : 'articles';
 
-  const [dbArticles, generations, feedbacks] = await Promise.all([
-    prisma.article.findMany({ orderBy: { createdAt: 'desc' } }),
-    prisma.generation.findMany({
-      include: { members: { orderBy: { id: 'asc' } } },
-      orderBy: { id: 'asc' },
-    }),
-    (prisma.feedback as any).findMany({
-      orderBy: { createdAt: 'desc' },
-    }),
+  // Hitungan (count) selalu ringan untuk semua tab — dipakai buat badge di sidebar.
+  // Data lengkap (findMany/include) HANYA di-query untuk tab yang sedang aktif,
+  // jadi dashboard tidak lagi menarik seluruh artikel+konten HTML, seluruh angkatan+anggota,
+  // dan seluruh feedback sekaligus di setiap kali halaman dimuat.
+  const [admin, articleCount, generationCount, feedbackCount, unreadCount] = await Promise.all([
+    prisma.adminUser.findUnique({ where: { id: adminId }, select: { name: true, email: true } }),
+    prisma.article.count(),
+    prisma.generation.count(),
+    (prisma.feedback as any).count(),
+    (prisma.feedback as any).count({ where: { isRead: false } }),
   ]);
 
-  const articles = dbArticles.map((art: any) => ({
-    id: art.id,
-    title: art.title,
-    description: art.body,
-    htmlContent: art.htmlContent ?? null,
-    hasHtml: !!art.htmlContent,
-    author: art.author,
-    date: art.createdAt.toLocaleDateString('id-ID', {
-      day: 'numeric', month: 'short', year: 'numeric',
-    }),
-  }));
+  let articles: any[] = [];
+  let generations: any[] = [];
+  let feedbacks: any[] = [];
 
-  const feedbackList = feedbacks.map((fb: any) => ({
-    id: fb.id,
-    name: fb.name,
-    message: fb.message,
-    ipAddress: fb.ipAddress,
-    isRead: fb.isRead,
-    date: fb.createdAt.toLocaleDateString('id-ID', {
-      day: 'numeric', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    }),
-  }));
+  if (tab === 'articles') {
+    const dbArticles = await (prisma.article as any).findMany({
+      orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
+    });
+    articles = dbArticles.map((art: any) => ({
+      id: art.id,
+      title: art.title,
+      description: art.body,
+      htmlContent: art.htmlContent ?? null,
+      hasHtml: !!art.htmlContent,
+      isPinned: !!art.isPinned,
+      author: art.author,
+      date: art.createdAt.toLocaleDateString('id-ID', {
+        day: 'numeric', month: 'short', year: 'numeric',
+      }),
+    }));
+  } else if (tab === 'generations') {
+    generations = await prisma.generation.findMany({
+      include: { members: { orderBy: { id: 'asc' } } },
+      orderBy: { id: 'asc' },
+    });
+  } else if (tab === 'feedback') {
+    const dbFeedbacks = await (prisma.feedback as any).findMany({ orderBy: { createdAt: 'desc' } });
+    feedbacks = dbFeedbacks.map((fb: any) => ({
+      id: fb.id,
+      name: fb.name,
+      message: fb.message,
+      ipAddress: fb.ipAddress,
+      isRead: fb.isRead,
+      date: fb.createdAt.toLocaleDateString('id-ID', {
+        day: 'numeric', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      }),
+    }));
+  }
 
-  return { articles, generations, admin, feedbacks: feedbackList };
+  return {
+    tab,
+    articles,
+    generations,
+    feedbacks,
+    admin,
+    counts: {
+      articles: articleCount,
+      generations: generationCount,
+      feedback: feedbackCount,
+      unread: unreadCount,
+    },
+  };
 }
 
 // ─── ACTION ──────────────────────────────────────────────────────────────────
@@ -171,10 +204,17 @@ export async function action({ request }: Route.ActionArgs) {
     if (!title?.trim() || !description?.trim() || !author?.trim()) {
       return { error: 'Judul, deskripsi, dan author wajib diisi!', section: 'article' };
     }
+    const cleanHtml = htmlContent?.trim() || null;
     await (prisma.article as any).create({
-      data: { title: title.trim(), body: description.trim(), author: author.trim(), htmlContent: htmlContent?.trim() || null },
+      data: {
+        title: title.trim(),
+        body: description.trim(),
+        author: author.trim(),
+        htmlContent: cleanHtml,
+        hasHtml: !!cleanHtml,
+      },
     });
-    return redirect('/dashboard');
+    return redirect('/dashboard?tab=articles');
   }
 
   if (actionType === 'edit_article') {
@@ -185,30 +225,47 @@ export async function action({ request }: Route.ActionArgs) {
     if (!articleId || !title?.trim() || !description?.trim()) {
       return { error: 'Data tidak lengkap untuk update artikel.', section: 'article' };
     }
+    const cleanHtml = htmlContent?.trim() || null;
     await (prisma.article as any).update({
       where: { id: Number(articleId) },
-      data: { title: title.trim(), body: description.trim(), htmlContent: htmlContent?.trim() || null },
+      data: {
+        title: title.trim(),
+        body: description.trim(),
+        htmlContent: cleanHtml,
+        hasHtml: !!cleanHtml,
+      },
     });
-    return redirect('/dashboard');
+    return redirect('/dashboard?tab=articles');
   }
 
   if (actionType === 'delete_article') {
     const articleId = formData.get('articleId') as string;
     if (!articleId) return { error: 'ID Artikel tidak valid.', section: 'article' };
     await prisma.article.delete({ where: { id: Number(articleId) } });
-    return redirect('/dashboard');
+    return redirect('/dashboard?tab=articles');
+  }
+
+  if (actionType === 'toggle_pin') {
+    const articleId = formData.get('articleId') as string;
+    const pin       = formData.get('pin') === '1';
+    if (!articleId) return { error: 'ID Artikel tidak valid.', section: 'article' };
+    await (prisma.article as any).update({
+      where: { id: Number(articleId) },
+      data: { isPinned: pin, pinnedAt: pin ? new Date() : null },
+    });
+    return redirect('/dashboard?tab=articles');
   }
 
   if (actionType === 'create_generation') {
     const name = formData.get('name') as string;
     if (name?.trim()) await prisma.generation.create({ data: { name } });
-    return redirect('/dashboard');
+    return redirect('/dashboard?tab=generations');
   }
 
   if (actionType === 'delete_generation') {
     const id = formData.get('id') as string;
     if (id) await prisma.generation.delete({ where: { id: Number(id) } });
-    return redirect('/dashboard');
+    return redirect('/dashboard?tab=generations');
   }
 
   if (actionType === 'create_member') {
@@ -229,7 +286,7 @@ export async function action({ request }: Route.ActionArgs) {
     if (name?.trim() && bio?.trim() && generationId) {
       await prisma.member.create({ data: { name, bio, imageUrl, generationId: Number(generationId) } });
     }
-    return redirect('/dashboard');
+    return redirect('/dashboard?tab=generations');
   }
 
   if (actionType === 'delete_member') {
@@ -242,7 +299,7 @@ export async function action({ request }: Route.ActionArgs) {
       }
       await prisma.member.delete({ where: { id: Number(id) } });
     }
-    return redirect('/dashboard');
+    return redirect('/dashboard?tab=generations');
   }
 
   // ── Feedback actions ──────────────────────────────────────────────────────
@@ -332,6 +389,7 @@ interface ArticleItem {
   description: string;
   htmlContent: string | null;
   hasHtml: boolean;
+  isPinned?: boolean;
   author: string;
   date: string;
 }
@@ -401,15 +459,14 @@ function EditArticleModal({ article, onClose }: { article: ArticleItem; onClose:
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-  const { articles, generations, admin, feedbacks } = useLoaderData<typeof loader>();
+  const { articles, generations, admin, feedbacks, tab: activeTab, counts } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const [activeTab, setActiveTab]     = useState<'articles' | 'generations' | 'feedback'>('articles');
   const [editArticle, setEditArticle] = useState<ArticleItem | null>(null);
   const [htmlContent, setHtmlContent] = useState('');
   const [editorTab, setEditorTab]     = useState<'html' | 'preview'>('html');
   const [wrapEnabled, setWrapEnabled]   = useState(true);
 
-  const unreadCount = feedbacks.filter((f: any) => !f.isRead).length;
+  const unreadCount = counts.unread;
 
   return (
     <div className="dash">
@@ -421,34 +478,37 @@ export default function Dashboard() {
           <p className="dash-sidebar__name">{admin?.name}</p>
         </div>
           <nav className="dash-sidebar__nav">
-            <button
+            <Link
+              to="/dashboard?tab=articles"
+              prefetch="intent"
               className={`dash-nav-item ${activeTab === 'articles' ? 'dash-nav-item--active' : ''}`}
-              onClick={() => setActiveTab('articles')}
             >
               <span className="dash-nav-item__icon"><PenIcon /></span>
               <span>Artikel</span>
-              <span className="dash-nav-item__count">{articles.length}</span>
-            </button>
-            <button
+              <span className="dash-nav-item__count">{counts.articles}</span>
+            </Link>
+            <Link
+              to="/dashboard?tab=generations"
+              prefetch="intent"
               className={`dash-nav-item ${activeTab === 'generations' ? 'dash-nav-item--active' : ''}`}
-              onClick={() => setActiveTab('generations')}
             >
               <span className="dash-nav-item__icon"><UsersIcon /></span>
               <span>Angkatan</span>
-              <span className="dash-nav-item__count">{generations.length}</span>
-            </button>
-            <button
+              <span className="dash-nav-item__count">{counts.generations}</span>
+            </Link>
+            <Link
+              to="/dashboard?tab=feedback"
+              prefetch="intent"
               className={`dash-nav-item ${activeTab === 'feedback' ? 'dash-nav-item--active' : ''}`}
-              onClick={() => setActiveTab('feedback')}
             >
               <span className="dash-nav-item__icon"><MessageSquareIcon /></span>
               <span>Feedback</span>
               {unreadCount > 0 ? (
                 <span className="dash-nav-item__count dash-nav-item__count--alert">{unreadCount}</span>
               ) : (
-                <span className="dash-nav-item__count">{feedbacks.length}</span>
+                <span className="dash-nav-item__count">{counts.feedback}</span>
               )}
-            </button>
+            </Link>
           </nav>
 
           <div className="dash-sidebar__spacer" />
@@ -532,11 +592,14 @@ export default function Dashboard() {
               ) : (
                 <div className="dash-article-list">
                   {articles.map((art: any) => (
-                    <div key={art.id} className="dash-article-row">
+                    <div key={art.id} className={`dash-article-row ${art.isPinned ? 'dash-article-row--pinned' : ''}`}>
                       <div className="dash-article-row__left">
                         <div className="dash-mini-avatar">{initials(art.author)}</div>
                         <div className="dash-article-row__info">
-                          <p className="dash-article-row__title">{art.title}</p>
+                          <p className="dash-article-row__title">
+                            {art.isPinned && <span className="dash-pin-flag" title="Pengumuman">📌</span>}
+                            {art.title}
+                          </p>
                           <p className="dash-article-row__meta">
                             <span>{art.author}</span>
                             <span className="dash-dot">·</span>
@@ -547,10 +610,29 @@ export default function Dashboard() {
                                 <span className="dash-html-badge">HTML ✓</span>
                               </>
                             )}
+                            {art.isPinned && (
+                              <>
+                                <span className="dash-dot">·</span>
+                                <span className="dash-pinned-badge">Pengumuman</span>
+                              </>
+                            )}
                           </p>
                         </div>
                       </div>
                       <div className="dash-article-row__actions">
+                        <Form method="post" style={{ display: 'inline' }}>
+                          <input type="hidden" name="articleId" value={art.id} />
+                          <input type="hidden" name="pin" value={art.isPinned ? '0' : '1'} />
+                          <button
+                            type="submit"
+                            name="_action"
+                            value="toggle_pin"
+                            className={`dash-btn dash-btn--pin-sm ${art.isPinned ? 'dash-btn--pin-sm--active' : ''}`}
+                            title={art.isPinned ? 'Batalkan status pengumuman' : 'Jadikan pengumuman (pin di atas)'}
+                          >
+                            📌 {art.isPinned ? 'Batal' : 'Pin'}
+                          </button>
+                        </Form>
                         <button type="button" className="dash-btn dash-btn--edit-sm" onClick={() => setEditArticle(art)}>Edit</button>
                         <Form method="post" style={{ display: 'inline' }}>
                           <input type="hidden" name="articleId" value={art.id} />

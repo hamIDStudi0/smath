@@ -125,7 +125,7 @@ export default function Register() {
               <UserPlusIcon />
             </div>
             <h1>Kelola Admin</h1>
-            <p>Tambah atau hapus akun admin lainnya</p>
+            <p>Tambah atau hapus akun Admin lainnya</p>
           </div>
         </div>
 
@@ -161,7 +161,7 @@ export default function Register() {
                 id="email"
                 name="email"
                 type="email"
-                placeholder="admin@smagamath.id"
+                placeholder="thing@example.id"
                 required
                 autoComplete="off"
               />

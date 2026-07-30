@@ -33,6 +33,17 @@ function getRouteIndex(pathname: string){
   return ROUTE_ORDER[pathname] ?? -1;
 }
 
+// Halaman-halaman ini punya layout sendiri (form full-height terpusat, atau
+// panel admin dengan sidebar/scroll sendiri) — footer situs publik akan terasa
+// "menempel begitu saja" kalau dipaksakan tampil di sana, jadi disembunyikan.
+const FOOTER_HIDDEN_PREFIXES = ["/dashboard", "/login", "/register", "/key"];
+
+function shouldShowFooter(pathname: string){
+  return !FOOTER_HIDDEN_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+}
+
 import type { Route } from "./+types/root";
 import "./app.css";
 
@@ -87,6 +98,8 @@ function AnimatedOutlet(){
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const location = useLocation();
+  const showFooter = shouldShowFooter(location.pathname);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -171,13 +184,15 @@ export default function App() {
 
         {/* ── Page content dengan animasi ── */}
         <AnimatedOutlet />
-        <footer className="app-footer">
-          <div className="footer-content">
-            <p className="footer-logo">&lt; / &gt;</p>
-            <p>Dibuat dengan Keinginan dan Usaha.</p>
-            <p className="footer-copyright">© 2026 SMATH. idk maybe "All rights reserved".</p>
-          </div>
-        </footer>
+        {showFooter && (
+          <footer className="app-footer">
+            <div className="footer-content">
+              <p className="footer-logo">&lt; / &gt;</p>
+              <p>Dibuat dengan Keinginan dan Usaha.</p>
+              <p className="footer-copyright">© 2026 SMATH. idk maybe "All rights reserved".</p>
+            </div>
+          </footer>
+        )}
       </div>
     </>
   );

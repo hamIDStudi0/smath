@@ -53,7 +53,7 @@ export default function Generations() {
     <div className='generations-page'>
         <div className='header'>
             <h1>Struktur</h1>
-            <p className='gen-page__subtitle'>Kenali para anggota kami</p>
+            <p className='gen-page__subtitle'>Kenalin anggota kami yang keren-keren nich</p>
         </div>
         {generations.length === 0 ? (<div className='gen-page__empty'><p>Belum terdapat angkatan kepengurusan</p></div>):(generations.map((gen)=>{
             const totalCards = gen.members.length;

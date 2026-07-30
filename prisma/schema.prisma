@@ -26,6 +26,9 @@ model Article {
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  isPinned  Boolean   @default(false)
+  pinnedAt  DateTime?
+  hasHtml   Boolean   @default(false)
 }
 
 model Generation {

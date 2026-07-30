@@ -99,7 +99,7 @@ export default function Login() {
               id="email"
               name="email"
               type="email"
-              placeholder="admin@smagamath.id"
+              placeholder="nothing@example.id"
               required
               autoComplete="email"
             />
