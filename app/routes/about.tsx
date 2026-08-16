@@ -91,21 +91,30 @@ export default function About() {
           About <em>Us</em>
         </h1>
         <p className="about__lead">
-          Selamat datang di website kami yang penuh dengan kejutan, dengan membawamu melintasi ilmu-ilmu bermanfaat membuat pandangan baru terhadap aspek-aspek yang sebelumnya kalian lihat membosankan berubah menjadi sesuatu yang berguna dalam cakupan jangka panjang.
+          Selamat datang di website kami yang penuh dengan kejutan, dengan membawamu melintasi
+          ilmu-ilmu bermanfaat membuat pandangan baru terhadap aspek-aspek yang sebelumnya kalian
+          lihat membosankan berubah menjadi sesuatu yang berguna dalam cakupan jangka panjang.
+          SMAGAMATH bukan sekadar kumpulan artikel — ini adalah ruang belajar yang terus tumbuh
+          bersama orang-orang yang menggunakannya.
         </p>
       </div>
 
-      <div className="about__photo">
+      <div className="about__photo media-tinted">
         <img
-          src="https://images.unsplash.com/photo-1758685734643-db77920292bc?fm=jpg&q=80&w=1600&auto=format&fit=crop"
-          alt="Suasana belajar dan diskusi matematika"
+          src="https://images.unsplash.com/photo-1758685734303-e85757067f28?fm=jpg&q=80&w=1600&auto=format&fit=crop"
+          alt="Menulis rumus matematika di papan tulis"
         />
       </div>
 
       <div className="about__section">
         <h2><SeedlingIcon /> Origin</h2>
         <p>
-          Platform yang muncul dari keinginan untuk berkembang, dibantu oleh semangat dan dukungan memberikan kekuatan dalam membangun sebuah tempat yang akan memberikan timbal balik positif dan dikenang selamanya.
+          Platform ini muncul dari keinginan sederhana untuk berkembang — bermula dari kumpulan
+          catatan dan pembahasan soal yang dibagikan antar teman, dibantu oleh semangat dan
+          dukungan yang memberikan kekuatan untuk terus lanjut. Dari sana kami membangun sebuah
+          tempat yang kami harap bisa memberikan timbal balik positif dan dikenang selamanya, bukan
+          hanya oleh kami yang membangunnya, tapi juga oleh setiap orang yang pernah singgah dan
+          belajar di sini.
         </p>
       </div>
 
@@ -114,7 +123,11 @@ export default function About() {
       <div className="about__section">
         <h2><TargetIcon /> Purpose</h2>
         <p>
-          Tujuan dibangunnya website ini adalah untuk memberikan tempat atau wadah yang dimana bisa dimanfaatkan kepada para kontributor maupun user untuk berkembang dan saling berbagi ilmu maupun pengalaman.
+          Tujuan dibangunnya website ini adalah memberikan tempat atau wadah yang bisa dimanfaatkan
+          para kontributor maupun pengguna untuk berkembang dan saling berbagi ilmu maupun
+          pengalaman. Kami ingin setiap orang yang datang ke sini — baik yang baru mulai belajar
+          matematika dasar maupun yang sedang mempersiapkan diri untuk OSN — merasa punya tempat
+          untuk bertanya, salah, mencoba lagi, dan akhirnya paham.
         </p>
       </div>
 
@@ -153,7 +166,12 @@ export default function About() {
       <div className="about__section">
         <h2><FileTextIcon /> Closing</h2>
         <p>
-          Terimakasih telah menyediakan waktunya untuk membaca ini, saya harap kalian mendapatkan dampak yang sepadan dengan kontribusi positif untuk membangun dan mengembangkan generasi ini, setiap langkah membawa kita menuju tantangan dan setiap tantangan merupakan bekal yang berupa pengalaman, dan pengalaman tersebut bisa dijadikan batu tanjakan untuk meraih sesuatu yang sebelumnya masih belum teraih.
+          Terima kasih telah menyediakan waktunya untuk membaca ini. Saya harap kalian mendapatkan
+          dampak yang sepadan dengan kontribusi positif untuk membangun dan mengembangkan generasi
+          ini — setiap langkah membawa kita menuju tantangan, dan setiap tantangan merupakan bekal
+          berupa pengalaman. Pengalaman itulah yang nantinya bisa dijadikan batu pijakan untuk
+          meraih sesuatu yang sebelumnya masih belum teraih. Kami akan terus berada di sini,
+          menemani proses belajar itu selangkah demi selangkah.
         </p>
       </div>
 
