@@ -95,6 +95,13 @@ export default function About() {
         </p>
       </div>
 
+      <div className="about__photo">
+        <img
+          src="https://images.unsplash.com/photo-1758685734643-db77920292bc?fm=jpg&q=80&w=1600&auto=format&fit=crop"
+          alt="Suasana belajar dan diskusi matematika"
+        />
+      </div>
+
       <div className="about__section">
         <h2><SeedlingIcon /> Origin</h2>
         <p>
