@@ -1,69 +1,59 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* =========================================
    DESIGN SYSTEM TOKENS
-   Satu warna aksen (biru), skala netral gelap yang konsisten —
-   dipakai di semua halaman lewat variable yang sama.
    ========================================= */
 :root {
-  /* Core palette — dark navy, cocok untuk kesan situs perusahaan/teknologi */
-  --bg-base:        #0b1220;
+  /* Core palette — dark navy (home feel) */
+  --bg-base:        #0f172a;
   --bg-surface:     #0f172a;
-  --bg-card:        rgba(255, 255, 255, 0.035);
-  --bg-card-hover:  rgba(255, 255, 255, 0.06);
-  --bg-elevated:    #131c31;
+  --bg-card:        rgba(30, 41, 59, 0.6);
+  --bg-card-hover:  rgba(30, 41, 59, 0.85);
 
   /* Text */
-  --ink:            #f3f5fa;
-  --ink-muted:      #a7b0c4;
-  --ink-faint:      #6b7690;
+  --ink:            #f1f5f9;
+  --ink-muted:      #cbd5e1;
+  --ink-faint:      #64748b;
 
-  /* Brand accent — SATU warna biru, dipakai konsisten di semua tempat
-     (dulu ada campuran biru+oranye yang bentrok — sekarang hanya biru) */
-  --blue-primary:   #5b8def;
-  --blue-deep:      #3b6fe0;
-  --blue-muted:     rgba(91, 141, 239, 0.22);
-  --blue-light:     rgba(91, 141, 239, 0.08);
-  --blue-glow:      rgba(91, 141, 239, 0.16);
+  /* Brand accents — BLUE (matches home) */
+  --blue-primary:   #60a5fa;
+  --blue-deep:      #3b82f6;
+  --blue-muted:     rgba(96, 165, 250, 0.25);
+  --blue-light:     rgba(96, 165, 250, 0.08);
+  --blue-glow:      rgba(96, 165, 250, 0.15);
 
-  /* Alias lama (beberapa file CSS lain masih memakai nama --orange-*) —
-     diarahkan ke aksen biru yang sama supaya tidak ada dua warna brand. */
-  --orange-primary: var(--blue-primary);
-  --orange-deep:    var(--blue-deep);
-  --orange-muted:   var(--blue-muted);
-  --orange-light:   var(--blue-light);
-  --orange-glow:    var(--blue-glow);
-
-  /* Status */
-  --success:        #22c55e;
-  --danger:         #ef4444;
+  /* Aliases for pages that used orange vars */
+  --orange-primary: #ffd249;
+  --orange-deep:    #f6c13b;
+  --orange-muted:   rgba(96, 165, 250, 0.25);
+  --orange-light:   rgba(96, 165, 250, 0.08);
+  --orange-glow:    rgba(96, 165, 250, 0.15);
 
   /* Borders */
   --border:         rgba(255,255,255,0.08);
-  --border-hover:   rgba(91, 141, 239, 0.45);
+  --border-hover:   rgba(96, 165, 250, 0.45);
 
-  /* Typography — Sora untuk judul (tegas, modern), Plus Jakarta Sans untuk isi
-     (lebih hangat & mudah dibaca dibanding Inter default) */
-  --font-display:   "Sora", system-ui, sans-serif;
-  --font-body:      "Plus Jakarta Sans", system-ui, sans-serif;
+  /* Typography */
+  --font-display:   "Space Grotesk", system-ui, sans-serif;
+  --font-body:      "Inter", system-ui, sans-serif;
 
   /* Radius */
-  --radius-sm:      8px;
-  --radius-md:      14px;
-  --radius-lg:      22px;
+  --radius-sm:      6px;
+  --radius-md:      12px;
+  --radius-lg:      20px;
 
   /* Shadows */
-  --shadow-card:    0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
-  --shadow-hover:   0 16px 40px rgba(0,0,0,0.45), 0 0 0 1px var(--border-hover);
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-hover:   0 10px 30px rgba(0,0,0,0.6), 0 0 0 1px var(--border-hover);
 
   /* Nav height */
-  --nav-h: 68px;
+  --nav-h: 64px;
 }
 
 /* =========================================
@@ -73,43 +63,22 @@
 
 html, body {
   background-color: var(--bg-base);
-  color: var(--ink);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 button { cursor: pointer; font-family: inherit; }
-a { text-decoration: none; color: inherit; }
-img { max-width: 100%; display: block; }
+a { text-decoration: none; }
 
-/* Latar belakang statis & halus — pengganti animasi canvas simbol matematika
-   yang sebelumnya terasa seperti template default. Cukup gradasi lembut,
-   tidak ada gerakan, tidak mengganggu konten. */
-.app-background {
+.fixed-background-canvas {
   position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 900px 560px at 12% -8%, var(--blue-glow), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 100% 15%, rgba(91,141,239,0.08), transparent 55%),
-    var(--bg-base);
-}
-
-/* =========================================
-   MEDIA TINTING — foto apapun sumbernya "diwarnai ulang" dengan hue biru
-   yang sama lewat CSS filter (bukan overlay/pseudo-element terpisah),
-   supaya tidak bentrok dengan gradient overlay khusus tiap section dan
-   tetap konsisten menyatu dengan tema gelap di semua tempat ia dipakai.
-   ========================================= */
-.media-tinted {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-.media-tinted img {
-  filter: grayscale(0.5) sepia(0.35) hue-rotate(178deg) saturate(2.4) brightness(0.68) contrast(1.05);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0; 
+  pointer-events: none; 
 }
 
 /* =========================================
@@ -125,9 +94,9 @@ img { max-width: 100%; display: block; }
   justify-content: space-between;
   align-items: center;
   padding: 0 clamp(1.25rem, 4vw, 3rem);
-  background: rgba(11, 18, 32, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(28, 21, 14, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
   z-index: 1000;
   transition: background 0.3s ease;
@@ -136,34 +105,38 @@ img { max-width: 100%; display: block; }
 /* Logo */
 .nav-logo {
   display: flex;
-  align-items: baseline;
-  gap: 1px;
+  align-items: center;
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  letter-spacing: 0.02em;
+  letter-spacing: 1px;
+  transform: skewX(-8deg);
   user-select: none;
   text-decoration: none;
 }
 
-.nav-logo-dot  { color: var(--blue-primary); font-size: 1.3rem; line-height: 1; }
-.nav-logo-main { color: var(--ink); }
+.nav-logo-dot  { color: var(--blue-primary); font-size: 1.4rem; line-height: 1; text-shadow: var(--blue-primary) 1px 1px 5px;}
+.nav-logo-main { color: var(--blue-primary); text-shadow: var(--blue-primary) 1px 1px 5px;}
 .nav-logo-math {
-  color: var(--blue-primary);
+  font-family: "Cambria Math", "Times New Roman", Georgia, serif;
+  font-style: italic;
+  color: var(--orange-primary);
+  translate: 0px 2px;
+  text-shadow: var(--orange-primary) 1px 1px 5px;
 }
 
 /* Nav links */
 .navbar {
   display: flex;
-  gap: 2px;
+  gap: 1px;
   align-items: center;
 }
 
 .nav-item {
   color: var(--ink-muted);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 0.45rem 0.9rem;
+  padding: 0.4rem 0.9rem;
   border-radius: var(--radius-sm);
   position: relative;
   transition: color 0.2s ease, background 0.2s ease;
@@ -171,12 +144,13 @@ img { max-width: 100%; display: block; }
 
 .nav-item:hover {
   color: var(--ink);
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.06);
 }
 
 .nav-item.active {
-  color: var(--blue-primary);
+  color: var(--orange-primary);
   font-weight: 600;
+  text-shadow: #f6c13b 0px 0px 30px;
 }
 
 .nav-item::after {
@@ -188,63 +162,88 @@ img { max-width: 100%; display: block; }
   width: 60%;
   height: 2px;
   border-radius: 2px;
-  background: var(--blue-primary);
+  background: var(--orange-primary);
   transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
 }
 
 .nav-item.active::after { transform: translateX(-50%) scaleX(1); }
 
-.nav-admin-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  color: var(--ink-muted);
-  margin-left: 0.4rem;
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
-}
-.nav-admin-link:hover, .nav-admin-link.active {
-  color: var(--blue-primary);
-  border-color: var(--border-hover);
-  background: var(--blue-light);
-}
-
 /* ── Navbar: responsive (tablet & hp) ── */
 @media (max-width: 768px) {
-  .navroot { padding: 0 1rem; }
+  .navroot {
+    padding: 0 1rem;
+  }
   .nav-logo { font-size: 1rem; }
   .navbar { gap: 0; }
-  .nav-item { font-size: 0.78rem; padding: 0.35rem 0.55rem; }
+  .nav-item {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.55rem;
+  }
 }
 
 @media (max-width: 420px) {
-  :root { --nav-h: 58px; }
+  :root { --nav-h: 56px; }
   .navroot { padding: 0 0.7rem; }
   .nav-logo { font-size: 0.9rem; }
-  .nav-item { font-size: 0.7rem; padding: 0.3rem 0.4rem; }
+  .nav-item {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.4rem;
+  }
 }
 
 /* =========================================
-   PAGE TRANSITION SYSTEM
+   PAGE TRANSITION SYSTEM — dual-layer overlay
+   Halaman lama & baru dirender bersamaan selama transisi
+   sehingga tidak ada frame kosong / kedip.
    ========================================= */
+
+/* Kontainer: posisi relative + clip overflow horizontal */
+/* Container pembungkus harus relative dan menyembunyikan overflow */
 .pt-container {
   position: relative;
   overflow: hidden;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100vh; /* Sesuaikan dengan kebutuhan layoutmu */
 }
 
-.pt-page { width: 100%; }
+/* Halaman yang sedang aktif */
+.pt-page {
+  width: 100%;
+  /* Optional: position absolute jika kamu ingin mereka tumpang tindih secara absolut, 
+     tapi karena kita hapus outgoing, relative/block biasa sudah cukup */
+}
 
-.pt-in-left  { animation: slideInFromRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-.pt-in-right { animation: slideInFromLeft  0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+/* ── Animasi Maju (Geser ke Kiri, Masuk dari Kanan) ── */
+.pt-in-left {
+  animation: slideInFromRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
 
-@keyframes slideInFromRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes slideInFromLeft  { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px); /* Bisa diganti 100% jika ingin dari ujung layar */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 
+/* ── Animasi Mundur (Geser ke Kanan, Masuk dari Kiri) ── */
+.pt-in-right {
+  animation: slideInFromLeft 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px); /* Bisa diganti -100% jika ingin dari ujung layar */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 /* =========================================
    PAGE WRAPPER (padding for fixed nav)
    ========================================= */
@@ -261,7 +260,7 @@ img { max-width: 100%; display: block; }
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--blue-primary);
+  color: var(--orange-primary);
   margin-bottom: 0.6rem;
 }
 
@@ -303,42 +302,21 @@ img { max-width: 100%; display: block; }
   margin: 2.5rem 0;
 }
 
-/* Buttons — satu warna aksen untuk semua tombol primer */
+/* Blue button (replaces orange) */
 .btn-orange,
 .btn-blue {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  background: var(--blue-deep);
+  background: var(--orange-deep);
   color: #fff;
   border: none;
   border-radius: var(--radius-sm);
-  padding: 0.7rem 1.5rem;
+  padding: 0.65rem 1.4rem;
   font-size: 0.9rem;
   font-weight: 600;
   font-family: var(--font-body);
   transition: background 0.18s ease, transform 0.1s ease;
 }
-.btn-orange:hover, .btn-blue:hover  { background: var(--blue-primary); }
+.btn-orange:hover, .btn-blue:hover  { background: #2563eb; }
 .btn-orange:active, .btn-blue:active { transform: scale(0.97); }
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  background: transparent;
-  color: var(--ink);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 0.68rem 1.4rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  font-family: var(--font-body);
-  transition: border-color 0.18s ease, background 0.18s ease;
-}
-.btn-secondary:hover { border-color: var(--border-hover); background: rgba(255,255,255,0.04); }
 
 /* Input base */
 .input-base {
@@ -355,20 +333,20 @@ img { max-width: 100%; display: block; }
 }
 .input-base::placeholder { color: var(--ink-faint); }
 .input-base:focus {
-  border-color: var(--blue-primary);
-  box-shadow: 0 0 0 3px var(--blue-glow);
+  border-color: var(--orange-primary);
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
 }
 
 .app-footer {
   width: 100%;
   padding: 3rem 1.5rem;
-  background: linear-gradient(to bottom, transparent, rgba(11, 18, 32, 0.95));
+  background: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.95)); /* Gradasi mulus ke gelap */
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  margin-top: 4rem;
+  margin-top: 4rem; /* Jarak dari diagram terakhir */
 }
 
 .footer-content {
@@ -383,7 +361,7 @@ img { max-width: 100%; display: block; }
   font-family: monospace;
   font-weight: bold;
   font-size: 1.5rem;
-  color: var(--blue-primary);
+  color: #3b82f6; /* Warna biru aksen */
   margin-bottom: 0.5rem;
 }
 
@@ -394,7 +372,10 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 480px) {
-  .app-footer { padding: 2rem 1.25rem; margin-top: 2.5rem; }
+  .app-footer {
+    padding: 2rem 1.25rem;
+    margin-top: 2.5rem;
+  }
   .footer-content { font-size: 0.8rem; }
   .footer-logo { font-size: 1.25rem; }
   .footer-copyright { font-size: 0.72rem; }

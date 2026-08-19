@@ -1,99 +1,59 @@
-import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
-import "../css/home.css";
+import { useEffect, useState } from "react";
+import "../css/home.css"
+const WORDS:string[] = ["A Masterpieces", "Some Magics", "An Achievements", "Great Memories"]
 
-const WORDS: string[] = ["A Masterpieces", "Some Magics", "An Achievements", "Great Memories"];
-
-const FEATURES = [
-  {
-    id: 0,
-    title: "Belajar Bersama",
-    content: "Kami membangun ekosistem belajar dan komunitas dengan tujuan bersama berbagi pengalaman seputar matematika. Setiap anggota bebas bertanya, berdiskusi, dan saling melengkapi pemahaman.",
-  },
-  {
-    id: 1,
-    title: "Digagas Bersama",
-    content: "Komunitas ini dibangun oleh dan untuk seluruh anggota yang ingin berkontribusi penuh dalam pengembangannya — bukan proyek satu orang, tapi hasil kerja banyak tangan.",
-  },
-  {
-    id: 2,
-    title: "Terus Berkembang",
-    content: "Tempat ini tidak akan pernah menemui garis finish. Materi, artikel, dan cara kami mengajar terus diperbarui mengikuti kebutuhan anggota dari waktu ke waktu.",
-  },
-  {
-    id: 3,
-    title: "Selalu Terbuka",
-    content: "Dimanapun kalian berada, kami akan selalu menemani lewat website ini — menyajikan ilmu bermanfaat kapan saja dibutuhkan, tanpa batas jam operasional.",
-  },
-  {
-    id: 4,
-    title: "Mengasah Potensi",
-    content: "Kami percaya banyak potensi belum terasah dengan baik. Lewat latihan soal dan pembahasan yang konsisten, kami ingin membantu generasi ini melampaui batas kemampuannya sendiri.",
-  },
-  {
-    id: 5,
-    title: "Saling Membantu",
-    content: "Dengan dukungan seluruh anggota, kami berharap komunitas ini menjadi jembatan yang membantu kalian meraih masa depan yang lebih cerah — satu soal, satu diskusi pada satu waktu.",
-  },
+const INFO_BOXES = [
+  { id: 0, title: 'What are you Build?', content: 'Kami membangun sebuah ekosistem belajar dan komunitas dalam tujuan untuk bersama berbagi pengalaman.' },
+  { id: 1, title: 'Who built it?', content: 'Pembangun komunitas ini sebenarnya adalah seluruh orang yang ingin berkontribusi penuh dalam pengembangan komunitas ini.' },
+  { id: 2, title: 'When will you reach the finish line?', content: 'Tempat ini tidak akan pernah menemui garis finish dan akan terus melaju menembus batas.' },
+  { id: 3, title: 'Where can we find this place?', content: 'Dimanapun kami akan selalu menenami lewat website ini, yang bersedia menyajikan seluruh ilmu yang bermanfaat.' },
+  { id: 4, title: 'Why choose us?', content: 'Karena melihat seluruh potensi yang belum terasah dengan baik, kami ingin cita-cita kami untuk mewujudkan generasi yang melebihi batas kemampuannya.' },
+  { id: 5, title: 'How can this help?', content: 'Dengan dibantu seluruh umat kami harap bisa menjadikan komunitas ini sebagai jembatan yang akan membantu kalian meraih masa depan yang cerah :).' },
 ];
 
-const STATS = [
-  { value: "1000+", label: "Soal & Materi" },
-  { value: "50+", label: "Artikel Terbit" },
-  { value: "OSN", label: "Fokus Olimpiade" },
-  { value: "24/7", label: "Akses Kapan Saja" },
+const MathIcon = ({ color }: { color: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+    stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>
+  </svg>
+);
+const AnalystIcon = ({ color }: { color: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+    stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+  </svg>
+);
+const TechIcon = ({ color }: { color: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+    stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+  </svg>
+);
+const AdaptIcon = ({ color }: { color: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+    stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 4 23 10 17 10"/>
+    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+  </svg>
+);
+
+const SKILLS = [
+  { name: 'Mathematics', percentage: 47, color: '#3b82f6', Icon: MathIcon },
+  { name: 'Analyst',     percentage: 32, color: '#10b981', Icon: AnalystIcon },
+  { name: 'Technology',  percentage: 12, color: '#8b5cf6', Icon: TechIcon },
+  { name: 'Adaptation',  percentage: 9,  color: '#f59e0b', Icon: AdaptIcon },
 ];
-
-/** Efek parallax ringan: elemen bergerak lebih lambat dari scroll halaman. */
-function useParallax(speed: number) {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    let ticking = false;
-
-    const update = () => {
-      const rect = el.getBoundingClientRect();
-      const viewportCenter = window.innerHeight / 2;
-      const distanceFromCenter = rect.top + rect.height / 2 - viewportCenter;
-      el.style.transform = `translateY(${distanceFromCenter * -speed}px)`;
-      ticking = false;
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(update);
-        ticking = true;
-      }
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [speed]);
-
-  return ref;
-}
 
 export default function Home() {
   const [currentWordIndex, setCurrentWordIndex] = useState<number>(0);
   const [currentText, setCurrentText] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-
-  const heroImgRef = useParallax(0.12);
-  const bandImgRef = useParallax(0.15);
-
   useEffect(() => {
     const typeSpeed = isDeleting ? 50 : 150;
-    const delay =
-      !isDeleting && currentText === WORDS[currentWordIndex] ? 2000 :
-      isDeleting && currentText === "" ? 500 :
+    const delay = 
+      !isDeleting && currentText === WORDS[currentWordIndex] ? 2000 : 
+      isDeleting && currentText === "" ? 500 : 
       typeSpeed;
 
     const timer = setTimeout(() => {
@@ -110,142 +70,78 @@ export default function Home() {
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [currentText, isDeleting, currentWordIndex]);
+  }, [currentText, isDeleting, currentWordIndex]); 
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) entry.target.classList.add("is-visible");
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        }
       });
-    }, { threshold: 0.12 });
+    }, {
+      threshold: 0.1 
+    });
 
-    const hiddenElements = document.querySelectorAll(".reveal-item");
+    const hiddenElements = document.querySelectorAll('.reveal-item');
     hiddenElements.forEach((el) => observer.observe(el));
-    return () => hiddenElements.forEach((el) => observer.unobserve(el));
-  }, []);
 
+    return () => {
+      hiddenElements.forEach((el) => observer.unobserve(el));
+    };
+  }, []); 
   return (
-    <div className="home">
-      {/* ── Hero ── */}
-      <section className="hero">
-        <div className="hero__media media-tinted" aria-hidden="true">
-          <div ref={heroImgRef} className="hero__media-inner">
-            <img
-              src="https://images.unsplash.com/photo-1758685734643-db77920292bc?fm=jpg&q=80&w=2400&auto=format&fit=crop"
-              alt=""
-            />
-          </div>
-        </div>
-        <div className="hero__content">
-          <p className="hero__eyebrow">Komunitas Belajar Matematika</p>
-          <h1 className="title">
-            <span className="title-static">Let's Create</span>
-            <span className="title-dynamic">{currentText}<span className="cursor"></span></span>
-          </h1>
-          <div className="description">
-            <p>
-              Keinginan hanya bisa diraih dengan usaha, usaha hanya bisa diterapkan dengan aksi dan
-              kerja keras yang diikuti dengan doa. Di sinilah SMAGAMATH berdiri — sebagai ruang bagi
-              siapapun yang ingin memahami matematika lebih dalam, bukan sekadar menghafal rumus.
-            </p>
-            <p>
-              Selamat datang di website kami, yang menyajikan ilmu-ilmu seputar OSN matematika,
-              pembahasan soal, artikel pengembangan diri, hingga informasi kegiatan komunitas —
-              semuanya kami rawat dengan usaha yang sama seperti saat kami pertama membangunnya.
-            </p>
-          </div>
-          <div className="hero__actions">
-            <Link to="/article" className="btn-blue">Lihat Artikel</Link>
-            <Link to="/about" className="btn-secondary">Tentang Kami</Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Stats strip ── */}
-      <section className="stats-strip">
-        {STATS.map((s) => (
-          <div key={s.label} className="stats-strip__item">
-            <p className="stats-strip__value">{s.value}</p>
-            <p className="stats-strip__label">{s.label}</p>
-          </div>
-        ))}
-      </section>
-
-      {/* ── Cerita kami — teks penuh, terpusat, tidak berdampingan dengan foto
-             supaya seimbang di semua ukuran layar ── */}
-      <section className="story-section">
-        <p className="section-eyebrow">Siapa Kami</p>
-        <h2 className="section-heading">SMAGAMATH, rumah untuk pecinta matematika</h2>
-        <div className="story-section__body">
-          <p>
-            SMAGAMATH adalah komunitas belajar yang lahir dari keinginan sederhana: berkembang
-            bersama. Semuanya dimulai dari kumpulan catatan latihan soal OSN yang dibagikan
-            antar-teman, lalu perlahan tumbuh menjadi tempat berbagi materi, artikel, dan
-            pengalaman yang lebih luas.
-          </p>
-          <p>
-            Kami percaya bahwa matematika bukan sekadar pelajaran untuk dilewati, melainkan cara
-            berpikir yang bisa dilatih siapa saja. Karena itu, setiap materi yang kami susun selalu
-            diusahakan mudah dipahami, relevan dengan kebutuhan olimpiade, dan tetap terasa dekat
-            dengan keseharian anggota — tanpa kehilangan kedalaman isinya.
-          </p>
-        </div>
-      </section>
-
-      {/* ── Foto banner penuh dengan teks overlay, terpusat ── */}
-      <section className="banner-section reveal-item">
-        <div className="banner-section__media media-tinted">
-          <div ref={bandImgRef} className="banner-section__media-inner">
-            <img
-              src="https://images.unsplash.com/photo-1758270705518-b61b40527e76?fm=jpg&q=80&w=2000&auto=format&fit=crop"
-              alt="Anggota komunitas berdiskusi dan belajar bersama"
-            />
-          </div>
-        </div>
-        <div className="banner-section__body">
-          <p className="section-eyebrow">Kolaborasi</p>
-          <h2 className="section-heading">Tumbuh lewat kerja sama, bukan sendiri-sendiri</h2>
-          <p className="section-subheading">
-            Setiap artikel dan materi yang terbit di sini adalah hasil kerja tim — mulai dari
-            riset soal, penulisan pembahasan, hingga penyuntingan akhir. Kami percaya belajar
-            matematika jauh lebih berarti dan lebih mudah bertahan ketika dilakukan bersama-sama,
-            saling mengoreksi, dan saling menyemangati.
-          </p>
-        </div>
-      </section>
-
-      {/* ── Features ── */}
-      <section className="section-block">
-        <div className="section-block__intro">
-          <p className="section-eyebrow">Kenapa SMAGAMATH</p>
-          <h2 className="section-heading">Dibangun untuk komunitas, oleh komunitas</h2>
-          <p className="section-subheading">
-            Enam hal ini yang selalu kami jaga dalam setiap materi, artikel, dan keputusan yang
-            kami ambil sebagai komunitas.
-          </p>
-        </div>
-        <div className="feature-grid">
-          {FEATURES.map((box, i) => (
-            <div key={box.id} className="feature-card reveal-item" style={{ transitionDelay: `${i * 80}ms` }}>
-              <h3>{box.title}</h3>
-              <p>{box.content}</p>
+    <div className="app-container">
+      <main className="content-container">
+        {/* Page 1 */}
+        <section className="fullscreen-section">
+          <div className="content">
+            <h1 className="title">
+              <span className="title-static">Let's Create</span><span className="title-dynamic">{currentText}<span className="cursor"></span></span>
+              
+            </h1>
+            <div className="description">
+              <p>Keinginan hanya bisa diraih dengan usaha, usaha hanya bisa diterapkan dengan aksi dan kerja keras yang diikuti dengan doa.</p>
+              <p>Selamat datang di Website kami, yang akan menyajikan ilmu-ilmu seputar OSN matematika maupun sekedar informasi events dsb.</p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CTA ── */}
-      <section className="cta-section reveal-item">
-        <h2 className="section-heading">Siap mulai belajar bersama kami?</h2>
-        <p className="section-subheading">
-          Jelajahi artikel dan materi yang sudah terbit, kenali lebih jauh perjalanan generasi
-          SMAGAMATH, atau ceritakan langsung masukanmu untuk kami.
-        </p>
-        <div className="hero__actions" style={{ justifyContent: "center", marginTop: "1.75rem" }}>
-          <Link to="/article" className="btn-blue">Mulai Jelajahi</Link>
-          <Link to="/feedback" className="btn-secondary">Beri Masukan</Link>
-        </div>
-      </section>
+          </div>
+        </section>
+        {/* Page 2 */}
+        <section className="fullscreen-section">
+          <div className="content-wrapper align-top">
+            <h2 className="section-title"></h2>
+            <div className="content-wrapper-box">
+              {INFO_BOXES.map((box, i)=>{
+                return(
+                  <div key={box.id} className="box reveal-item" style={{transitionDelay:`${i*100}ms`}}>
+                    <div className="box-header"><h3>{box.title}</h3></div>
+                    <div className="box-content-static"><p>{box.content}</p></div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+        {/* Page 3 */}
+        <section className="fullscreen-section">
+          <div className="content-wrapper align top">
+            <h2 className="section-title"></h2>
+            <div className="skills-container">
+              {SKILLS.map((skill,i)=>(
+                <div key={skill.name} className="skill-item reveal-item" style={{transitionDelay:`${i*150}ms`}}>
+                  <div className="skill-info">
+                    <span className="skill-name"><span className="skill-icon"><skill.Icon color={skill.color}/></span>{skill.name}</span>
+                    <span className="skill-percentage">{skill.percentage}%</span>
+                  </div>
+                  <div className="skill-bar-track">
+                  <div className="skill-bar-fill" style={{'--target-width':`${skill.percentage}%`,backgroundColor:skill.color}as React.CSSProperties}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
-  );
+  )
 }
